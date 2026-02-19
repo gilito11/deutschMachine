@@ -7,7 +7,10 @@
     <!-- Progress Bar -->
     <div class="mb-6 flex items-center justify-between">
         <h2 class="text-lg font-semibold">Review Session</h2>
-        <span class="text-sm text-gray-500">{{ total_cards }} cards to go</span>
+        <div class="flex items-center gap-3">
+            <span class="text-sm text-gray-500">{{ total_cards }} cards to go</span>
+            <span class="text-xs text-gray-400 hidden sm:inline px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">Space / 1-4</span>
+        </div>
     </div>
 
     <!-- Card Area -->
@@ -28,5 +31,37 @@
     function getResponseTime() {
         return Date.now() - cardStartTime;
     }
+
+    // Keyboard shortcuts for SRS
+    document.addEventListener('keydown', function(e) {
+        // Ignore if typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const area = document.getElementById('review-area');
+        if (!area) return;
+
+        // Space = Show Answer
+        if (e.code === 'Space' || e.code === 'Enter') {
+            e.preventDefault();
+            const showBtn = area.querySelector('button[hx-get]');
+            if (showBtn) { showBtn.click(); return; }
+        }
+
+        // 1=Again, 2=Hard, 3=Good, 4=Easy
+        const ratingButtons = area.querySelectorAll('button[hx-post]');
+        if (ratingButtons.length === 4) {
+            const keyMap = { '1': 0, '2': 1, '3': 2, '4': 3 };
+            if (keyMap[e.key] !== undefined) {
+                e.preventDefault();
+                ratingButtons[keyMap[e.key]].click();
+            }
+        }
+
+        // S = speak/TTS
+        if (e.key === 's' || e.key === 'S') {
+            const ttsBtn = area.querySelector('button[onclick^="speak"]');
+            if (ttsBtn) { ttsBtn.click(); }
+        }
+    });
 </script>
 {% endblock %}

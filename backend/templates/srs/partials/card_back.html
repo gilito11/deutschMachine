@@ -43,7 +43,7 @@
 
     <!-- Rating Buttons -->
     <div class="px-6 pb-6">
-        <p class="text-center text-sm text-gray-500 mb-3">How well did you know this?</p>
+        <p class="text-center text-sm text-gray-500 mb-3">How well did you know this? <span class="text-gray-400">(1-4)</span></p>
         <div class="grid grid-cols-4 gap-2">
             <button hx-post="{% url 'srs:rate_card' card.id %}"
                     hx-target="#review-area"
@@ -51,7 +51,7 @@
                     hx-vals='{"quality": "1", "lang_code": "{{ card.vocabulary_item.language.code }}", "response_time": "0"}'
                     onclick="this.querySelector('[name=response_time]') || (this.setAttribute('hx-vals', JSON.stringify({quality: '1', lang_code: '{{ card.vocabulary_item.language.code }}', response_time: String(getResponseTime())})))"
                     class="py-3 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800/50 text-red-700 dark:text-red-300 font-medium rounded-xl transition-colors text-sm">
-                Again
+                <span class="text-[10px] opacity-60">1</span> Again
             </button>
             <button hx-post="{% url 'srs:rate_card' card.id %}"
                     hx-target="#review-area"
@@ -59,7 +59,7 @@
                     hx-vals='{"quality": "3", "lang_code": "{{ card.vocabulary_item.language.code }}", "response_time": "0"}'
                     onclick="this.setAttribute('hx-vals', JSON.stringify({quality: '3', lang_code: '{{ card.vocabulary_item.language.code }}', response_time: String(getResponseTime())}))"
                     class="py-3 bg-yellow-100 dark:bg-yellow-900/50 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 text-yellow-700 dark:text-yellow-300 font-medium rounded-xl transition-colors text-sm">
-                Hard
+                <span class="text-[10px] opacity-60">2</span> Hard
             </button>
             <button hx-post="{% url 'srs:rate_card' card.id %}"
                     hx-target="#review-area"
@@ -67,7 +67,7 @@
                     hx-vals='{"quality": "4", "lang_code": "{{ card.vocabulary_item.language.code }}", "response_time": "0"}'
                     onclick="this.setAttribute('hx-vals', JSON.stringify({quality: '4', lang_code: '{{ card.vocabulary_item.language.code }}', response_time: String(getResponseTime())}))"
                     class="py-3 bg-green-100 dark:bg-green-900/50 hover:bg-green-200 dark:hover:bg-green-800/50 text-green-700 dark:text-green-300 font-medium rounded-xl transition-colors text-sm">
-                Good
+                <span class="text-[10px] opacity-60">3</span> Good
             </button>
             <button hx-post="{% url 'srs:rate_card' card.id %}"
                     hx-target="#review-area"
@@ -75,7 +75,7 @@
                     hx-vals='{"quality": "5", "lang_code": "{{ card.vocabulary_item.language.code }}", "response_time": "0"}'
                     onclick="this.setAttribute('hx-vals', JSON.stringify({quality: '5', lang_code: '{{ card.vocabulary_item.language.code }}', response_time: String(getResponseTime())}))"
                     class="py-3 bg-blue-100 dark:bg-blue-900/50 hover:bg-blue-200 dark:hover:bg-blue-800/50 text-blue-700 dark:text-blue-300 font-medium rounded-xl transition-colors text-sm">
-                Easy
+                <span class="text-[10px] opacity-60">4</span> Easy
             </button>
         </div>
         <div class="grid grid-cols-4 gap-2 mt-1">

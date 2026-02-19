@@ -12,7 +12,10 @@
             </svg>
         </a>
         <h2 class="text-lg font-semibold">{{ lesson.title }}</h2>
-        <span class="text-sm text-gray-500">{{ current_num }}/{{ total }}</span>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">{{ current_num }}/{{ total }}</span>
+            <span class="text-xs text-gray-400 hidden sm:inline px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">1-4 / Enter</span>
+        </div>
     </div>
 
     <!-- Progress Bar -->
@@ -26,4 +29,61 @@
         {% include 'lessons/partials/exercise_card.html' %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('keydown', function(e) {
+    // Ignore if typing in an input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    const area = document.getElementById('exercise-area');
+    if (!area) return;
+
+    // Multiple choice: 1-4 to select option
+    const mcButtons = area.querySelectorAll('button[x-on\\:click^="selected"]');
+    if (mcButtons.length > 0) {
+        const idx = parseInt(e.key) - 1;
+        if (idx >= 0 && idx < mcButtons.length) {
+            e.preventDefault();
+            mcButtons[idx].click();
+            return;
+        }
+    }
+
+    // Enter = submit Check or Continue
+    if (e.code === 'Enter') {
+        // Check button (lesson submit)
+        const checkBtn = area.querySelector('button[hx-post][class*="bg-primary"]');
+        if (checkBtn) {
+            e.preventDefault();
+            checkBtn.click();
+            return;
+        }
+        // Form submit
+        const form = area.querySelector('form[hx-post]');
+        if (form) {
+            e.preventDefault();
+            form.querySelector('button[type="submit"]').click();
+            return;
+        }
+    }
+
+    // Space = Continue (on feedback screen) or submit Check
+    if (e.code === 'Space') {
+        const continueBtn = area.querySelector('button[hx-post*="next"]');
+        if (continueBtn) {
+            e.preventDefault();
+            continueBtn.click();
+            return;
+        }
+    }
+
+    // S = speak/TTS
+    if (e.key === 's' || e.key === 'S') {
+        const ttsBtn = area.querySelector('button[onclick^="speak"]');
+        if (ttsBtn) { ttsBtn.click(); }
+    }
+});
+</script>
 {% endblock %}
