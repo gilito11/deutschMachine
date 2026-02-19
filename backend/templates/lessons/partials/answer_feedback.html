@@ -1,0 +1,51 @@
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border-2 overflow-hidden
+            {% if is_correct %}border-green-400 dark:border-green-600{% else %}border-red-400 dark:border-red-600{% endif %}">
+
+    <!-- Result Banner -->
+    <div class="px-6 py-4 {% if is_correct %}bg-green-50 dark:bg-green-900/30{% else %}bg-red-50 dark:bg-red-900/30{% endif %}">
+        <div class="flex items-center gap-3">
+            {% if is_correct %}
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-green-700 dark:text-green-300 text-lg">Correct!</p>
+                <p class="text-sm text-green-600 dark:text-green-400">+{{ exercise.xp_value }} XP</p>
+            </div>
+            {% else %}
+            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-red-700 dark:text-red-300 text-lg">Not quite</p>
+                <p class="text-sm text-red-600 dark:text-red-400">
+                    Correct answer: <strong>{{ exercise.correct_answer }}</strong>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Question Recap -->
+    <div class="px-6 py-4">
+        <p class="text-gray-600 dark:text-gray-300 mb-2">{{ exercise.question|safe }}</p>
+        {% if not is_correct and user_answer %}
+        <p class="text-sm text-gray-400">Your answer: <span class="line-through">{{ user_answer }}</span></p>
+        {% endif %}
+        {% if exercise.explanation %}
+        <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p class="text-sm text-blue-700 dark:text-blue-300">{{ exercise.explanation }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Continue Button -->
+    <div class="px-6 pb-6">
+        <button hx-post="{% url 'lessons:next_exercise' lesson.slug %}"
+                hx-target="#exercise-area"
+                hx-swap="innerHTML transition:true"
+                class="w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors text-lg">
+            Continue
+        </button>
+    </div>
+</div>

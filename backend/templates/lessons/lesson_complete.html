@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Lesson Complete - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto text-center py-10">
+    <div class="text-6xl mb-4">&#127942;</div>
+    <h2 class="text-2xl font-bold mb-2">Lesson Complete!</h2>
+    <p class="text-gray-500 dark:text-gray-400 mb-6">{{ lesson.title }}</p>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <p class="text-2xl font-bold text-primary-600">{{ progress.accuracy }}%</p>
+                <p class="text-xs text-gray-500">Accuracy</p>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-green-600">{{ progress.correct_answers }}/{{ progress.total_answered }}</p>
+                <p class="text-xs text-gray-500">Correct</p>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-yellow-600">+{{ progress.xp_earned }}</p>
+                <p class="text-xs text-gray-500">XP earned</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-3 justify-center">
+        <form method="post" action="{% url 'lessons:restart' lesson.slug %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="px-5 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors">
+                Retry
+            </button>
+        </form>
+        <a href="{% url 'lessons:list' %}?lang={{ lesson.language.code }}"
+           class="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+            More Lessons
+        </a>
+    </div>
+</div>
+{% endblock %}

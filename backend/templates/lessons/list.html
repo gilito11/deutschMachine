@@ -3,15 +3,101 @@
 {% block title %}Lessons - deutschMachine{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto text-center py-16">
-    <div class="text-6xl mb-4">&#128218;</div>
-    <h2 class="text-2xl font-bold mb-2">Lessons Coming Soon</h2>
-    <p class="text-gray-500 dark:text-gray-400 mb-6">
-        Structured lessons with exercises, grammar drills, and scenario-based practice are on the way.
-    </p>
-    <a href="{% url 'vocabulary:browse' %}"
-       class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
-        Browse Vocabulary
-    </a>
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">Lessons</h1>
+    </div>
+
+    <!-- Language Tabs -->
+    {% if user_langs|length > 1 %}
+    <div class="flex gap-2 mb-6">
+        {% for ul in user_langs %}
+        <a href="?lang={{ ul.language.code }}"
+           class="px-4 py-2 rounded-lg font-medium text-sm transition-colors
+                  {% if ul.language.code == current_lang %}bg-primary-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+            {{ ul.language.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if lessons %}
+    <div class="space-y-3">
+        {% for lesson in lessons %}
+        <a href="{% url 'lessons:detail' lesson.slug %}"
+           class="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-shadow group">
+            <div class="flex items-center gap-4">
+                <!-- Icon -->
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl
+                            {% if lesson.progress.is_completed %}bg-green-100 dark:bg-green-900/50{% else %}bg-primary-100 dark:bg-primary-900/50{% endif %}">
+                    {% if lesson.progress.is_completed %}
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    {% elif lesson.icon %}
+                        {{ lesson.icon }}
+                    {% else %}
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors truncate">
+                            {{ lesson.title }}
+                        </h3>
+                        <span class="flex-shrink-0 text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full">
+                            {{ lesson.difficulty_level }}
+                        </span>
+                        <span class="flex-shrink-0 text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full">
+                            {{ lesson.get_lesson_type_display }}
+                        </span>
+                    </div>
+                    {% if lesson.description %}
+                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ lesson.description }}</p>
+                    {% endif %}
+                    <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                        <span>{{ lesson.exercise_count }} exercises</span>
+                        <span>+{{ lesson.xp_reward }} XP</span>
+                        {% if lesson.progress and not lesson.progress.is_completed %}
+                        <span class="text-primary-500">{{ lesson.progress.progress_pct }}% done</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Progress / Arrow -->
+                <div class="flex-shrink-0">
+                    {% if lesson.progress and not lesson.progress.is_completed %}
+                    <div class="w-10 h-10 rounded-full border-2 border-primary-300 flex items-center justify-center">
+                        <span class="text-xs font-bold text-primary-600">{{ lesson.progress.progress_pct }}%</span>
+                    </div>
+                    {% elif lesson.progress.is_completed %}
+                    <span class="text-xs font-medium text-green-600 dark:text-green-400">{{ lesson.progress.accuracy }}%</span>
+                    {% else %}
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+        <div class="text-6xl mb-4">&#128218;</div>
+        <h2 class="text-xl font-bold mb-2">No lessons available yet</h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">
+            Lessons for this language are being prepared.
+        </p>
+        <a href="{% url 'vocabulary:browse' %}"
+           class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+            Browse Vocabulary
+        </a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

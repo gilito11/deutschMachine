@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <a href="{% url 'lessons:list' %}?lang={{ lesson.language.code }}" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </a>
+        <h2 class="text-lg font-semibold">{{ lesson.title }}</h2>
+        <span class="text-sm text-gray-500">{{ current_num }}/{{ total }}</span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-8">
+        <div class="bg-primary-500 h-2 rounded-full transition-all duration-500"
+             style="width: {{ progress.progress_pct }}%"></div>
+    </div>
+
+    <!-- Exercise Area -->
+    <div id="exercise-area" hx-target="this" hx-swap="innerHTML transition:true">
+        {% include 'lessons/partials/exercise_card.html' %}
+    </div>
+</div>
+{% endblock %}

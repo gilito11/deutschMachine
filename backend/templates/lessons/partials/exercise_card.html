@@ -1,0 +1,139 @@
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+     x-data="{ answered: false, selected: '' }">
+
+    <!-- Exercise Type Badge -->
+    <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between">
+        <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
+            {% if exercise.exercise_type == 'multiple_choice' %}Choose the correct answer
+            {% elif exercise.exercise_type == 'fill_blank' %}Fill in the blank
+            {% elif exercise.exercise_type == 'translation' %}Translate this
+            {% elif exercise.exercise_type == 'reorder' %}Put the words in order
+            {% elif exercise.exercise_type == 'listening' %}Listen and type
+            {% endif %}
+        </span>
+        <span class="text-xs text-gray-400">+{{ exercise.xp_value }} XP</span>
+    </div>
+
+    <!-- Question -->
+    <div class="px-6 pt-8 pb-4">
+        <p class="text-xl font-semibold text-center text-gray-900 dark:text-white leading-relaxed">
+            {{ exercise.question|safe }}
+        </p>
+        {% if exercise.hint %}
+        <p class="text-center text-sm text-gray-400 mt-2">Hint: {{ exercise.hint }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Answer Area -->
+    <div class="px-6 pb-6" id="answer-area">
+        {% if exercise.exercise_type == 'multiple_choice' %}
+            <!-- Multiple Choice -->
+            <div class="space-y-2 mt-4">
+                {% for option in options %}
+                <button x-on:click="selected = '{{ option|escapejs }}'"
+                        :class="selected === '{{ option|escapejs }}' ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'"
+                        class="w-full text-left px-4 py-3 rounded-xl border-2 transition-all font-medium text-gray-700 dark:text-gray-200">
+                    {{ option }}
+                </button>
+                {% endfor %}
+            </div>
+
+            <!-- Submit -->
+            <div class="mt-6">
+                <button x-show="selected"
+                        x-cloak
+                        hx-post="{% url 'lessons:check_answer' exercise.id %}"
+                        hx-target="#exercise-area"
+                        hx-swap="innerHTML transition:true"
+                        hx-include="[name=answer]"
+                        x-on:click="document.getElementById('mc-answer').value = selected"
+                        class="w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors text-lg">
+                    Check
+                </button>
+                <input type="hidden" name="answer" id="mc-answer" :value="selected">
+            </div>
+
+        {% elif exercise.exercise_type == 'fill_blank' or exercise.exercise_type == 'translation' or exercise.exercise_type == 'listening' %}
+            <!-- Text Input -->
+            <form hx-post="{% url 'lessons:check_answer' exercise.id %}"
+                  hx-target="#exercise-area"
+                  hx-swap="innerHTML transition:true"
+                  class="mt-6">
+                {% csrf_token %}
+                {% if exercise.exercise_type == 'listening' %}
+                <button type="button"
+                        onclick="speak('{{ exercise.hint|default:exercise.correct_answer|escapejs }}', '{{ exercise.lesson.language.code }}')"
+                        class="mx-auto mb-4 p-4 rounded-full bg-primary-100 dark:bg-primary-900/50 hover:bg-primary-200 transition-colors flex items-center justify-center">
+                    <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                    </svg>
+                </button>
+                {% endif %}
+                <input type="text" name="answer" autocomplete="off" autofocus
+                       placeholder="{% if exercise.exercise_type == 'translation' %}Type the translation...{% elif exercise.exercise_type == 'listening' %}Type what you hear...{% else %}Type the missing word...{% endif %}"
+                       class="w-full px-4 py-3 text-lg text-center bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-primary-500 focus:ring-0 outline-none transition-colors">
+                <button type="submit"
+                        class="w-full mt-4 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors text-lg">
+                    Check
+                </button>
+            </form>
+
+        {% elif exercise.exercise_type == 'reorder' %}
+            <!-- Word Reorder -->
+            <div x-data="reorder()" class="mt-6">
+                <div class="flex flex-wrap gap-2 justify-center min-h-[48px] p-3 bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 mb-4">
+                    <template x-for="(word, i) in selected" :key="'s'+i">
+                        <button x-on:click="removeWord(i)"
+                                class="px-3 py-1.5 bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 rounded-lg font-medium text-sm hover:bg-primary-200 transition-colors"
+                                x-text="word"></button>
+                    </template>
+                    <span x-show="selected.length === 0" class="text-gray-400 text-sm py-1.5">Tap words to build the sentence</span>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <template x-for="(word, i) in available" :key="'a'+i">
+                        <button x-on:click="addWord(i)"
+                                x-show="!used.includes(i)"
+                                class="px-3 py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium text-sm hover:bg-gray-300 transition-colors"
+                                x-text="word"></button>
+                    </template>
+                </div>
+                <button x-show="selected.length > 0"
+                        x-cloak
+                        hx-post="{% url 'lessons:check_answer' exercise.id %}"
+                        hx-target="#exercise-area"
+                        hx-swap="innerHTML transition:true"
+                        x-on:click="document.getElementById('reorder-answer').value = selected.join(' ')"
+                        hx-include="[name=answer]"
+                        class="w-full mt-4 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors text-lg">
+                    Check
+                </button>
+                <input type="hidden" name="answer" id="reorder-answer">
+            </div>
+            <script>
+            function reorder() {
+                const words = {{ options|safe }};
+                return {
+                    available: words,
+                    selected: [],
+                    used: [],
+                    addWord(i) { this.selected.push(this.available[i]); this.used.push(i); },
+                    removeWord(i) {
+                        const origIdx = this.used[i];
+                        this.selected.splice(i, 1);
+                        this.used.splice(i, 1);
+                    }
+                }
+            }
+            </script>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function speak(text, lang) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === 'de' ? 'de-DE' : 'en-GB';
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
+}
+</script>

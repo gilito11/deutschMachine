@@ -101,9 +101,11 @@ def rate_card_view(request, card_id):
         return render(request, 'srs/partials/card_front.html', {'card': next_card})
     else:
         today_activity = DailyActivity.objects.get(user=request.user, activity_date=date.today())
+        from core.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
         return render(request, 'srs/partials/session_complete.html', {
             'activity': today_activity,
-            'streak': request.user.profile.current_streak,
+            'streak': profile.current_streak,
         })
 
 
@@ -152,7 +154,8 @@ def review_stats_view(request):
 
 
 def _update_streak(user):
-    profile = user.profile
+    from core.models import UserProfile
+    profile, _ = UserProfile.objects.get_or_create(user=user)
     today = date.today()
 
     if profile.last_activity_date == today:
