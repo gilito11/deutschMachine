@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Stats - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <h1 class="text-2xl font-bold">Review Stats</h1>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-center">
+            <p class="text-2xl font-bold">{{ total }}</p>
+            <p class="text-xs text-gray-500">Total Cards</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-center">
+            <p class="text-2xl font-bold text-red-500">{{ due }}</p>
+            <p class="text-xs text-gray-500">Due Today</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-center">
+            <p class="text-2xl font-bold text-green-500">{{ learned }}</p>
+            <p class="text-xs text-gray-500">Learned</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-center">
+            <p class="text-2xl font-bold text-yellow-500">{{ learning }}</p>
+            <p class="text-xs text-gray-500">Learning</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-center">
+            <p class="text-2xl font-bold text-blue-500">{{ new }}</p>
+            <p class="text-xs text-gray-500">New</p>
+        </div>
+    </div>
+
+    {% if recent_logs %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="font-semibold">Recent Reviews</h2>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for log in recent_logs %}
+            <div class="px-4 py-3 flex items-center justify-between">
+                <div>
+                    <p class="font-medium">{{ log.srs_card.vocabulary_item.word }}</p>
+                    <p class="text-sm text-gray-500">{{ log.srs_card.vocabulary_item.translation_es }}</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs px-2 py-1 rounded-full
+                        {% if log.quality >= 4 %}bg-green-100 text-green-700
+                        {% elif log.quality == 3 %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ log.quality }}/5
+                    </span>
+                    <span class="text-xs text-gray-400">{{ log.reviewed_at|timesince }} ago</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

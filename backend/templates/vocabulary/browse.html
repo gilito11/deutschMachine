@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Vocabulary - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">Vocabulary</h1>
+        <!-- Language Tabs -->
+        <div class="flex space-x-2">
+            {% for ul in user_langs %}
+            <a href="?lang={{ ul.language.code }}"
+               class="px-4 py-2 rounded-lg text-sm font-medium transition-colors
+               {% if current_lang == ul.language.code %}bg-primary-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+                {{ ul.language.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="relative">
+        <input type="text" value="{{ search }}" placeholder="Search words..."
+               hx-get="{% url 'vocabulary:browse' %}" hx-trigger="keyup changed delay:300ms"
+               hx-target="#main-content" hx-push-url="true" name="q"
+               class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500">
+        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+    </div>
+
+    {% if items %}
+    <!-- Search Results -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="font-semibold">Search Results</h2>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for item in items %}
+            <div class="px-4 py-3 flex items-center justify-between">
+                <div>
+                    <p class="font-medium">
+                        {% if item.gender %}<span class="text-gray-400 text-sm">{{ item.gender }}</span> {% endif %}
+                        {{ item.word }}
+                    </p>
+                    <p class="text-sm text-gray-500">{{ item.translation_es }}</p>
+                </div>
+                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">{{ item.difficulty_level }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Topics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for topic in topics %}
+        <a href="{% url 'vocabulary:topic_detail' topic.slug %}"
+           class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 transition-colors">
+            <div class="flex items-center space-x-3 mb-2">
+                {% if topic.icon %}<span class="text-2xl">{{ topic.icon }}</span>{% endif %}
+                <div>
+                    <h3 class="font-semibold">{{ topic.name }}</h3>
+                    <p class="text-xs text-gray-500">{{ topic.get_category_display }} &middot; {{ topic.difficulty_level }}</p>
+                </div>
+            </div>
+            {% if topic.description %}
+            <p class="text-sm text-gray-500 line-clamp-2">{{ topic.description }}</p>
+            {% endif %}
+            <div class="mt-3 flex items-center justify-between">
+                <span class="text-xs text-gray-400">{{ topic.vocabulary_items.count }} words</span>
+                {% if topic.country_context %}
+                <span class="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">{{ topic.country_context }}</span>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="col-span-2 text-center py-10 text-gray-500">
+            <p>No topics available yet. Run <code>python manage.py seed_content</code> to load vocabulary.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

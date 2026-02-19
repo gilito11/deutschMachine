@@ -1,0 +1,31 @@
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-10 text-center">
+    <div class="text-6xl mb-4">&#127881;</div>
+    <h2 class="text-2xl font-bold mb-2">Session Complete!</h2>
+    <p class="text-gray-500 dark:text-gray-400 mb-6">Great job, keep it up!</p>
+
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <p class="text-2xl font-bold text-primary-600">{{ activity.cards_reviewed }}</p>
+            <p class="text-xs text-gray-500">cards reviewed</p>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <p class="text-2xl font-bold text-purple-600">{{ activity.xp_earned }}</p>
+            <p class="text-xs text-gray-500">XP earned</p>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <p class="text-2xl font-bold text-orange-500">{{ streak }}</p>
+            <p class="text-xs text-gray-500">day streak</p>
+        </div>
+    </div>
+
+    <div class="flex space-x-3 justify-center">
+        <a href="{% url 'dashboard' %}"
+           class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            Dashboard
+        </a>
+        <a href="{% url 'vocabulary:browse' %}"
+           class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+            Learn More Words
+        </a>
+    </div>
+</div>

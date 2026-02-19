@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}No Cards Due - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto text-center py-16">
+    <div class="text-6xl mb-4">&#9989;</div>
+    <h2 class="text-2xl font-bold mb-2">All caught up!</h2>
+    <p class="text-gray-500 dark:text-gray-400 mb-8">No cards due for review right now. Come back later or add new vocabulary.</p>
+
+    <div class="flex space-x-3 justify-center">
+        <a href="{% url 'dashboard' %}"
+           class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            Dashboard
+        </a>
+        <a href="{% url 'vocabulary:browse' %}"
+           class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+            Browse Vocabulary
+        </a>
+    </div>
+</div>
+{% endblock %}

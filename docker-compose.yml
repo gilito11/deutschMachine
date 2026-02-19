@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: deutschmachine-postgres
+    environment:
+      POSTGRES_DB: deutschmachine_db
+      POSTGRES_USER: deutschmachine
+      POSTGRES_PASSWORD: deutschmachine2026
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deutschmachine -d deutschmachine_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deutschmachine-web
+    command: python backend/manage.py runserver 0.0.0.0:8001
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql://deutschmachine:deutschmachine2026@postgres:5432/deutschmachine_db
+      DJANGO_SECRET_KEY: django-insecure-docker-dev-key
+      DEBUG: "True"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./backend:/app/backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

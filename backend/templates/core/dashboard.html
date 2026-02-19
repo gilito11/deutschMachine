@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Welcome -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold">Hey {{ user.first_name }}!</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">
+                {% if cards_due > 0 %}
+                    You have <span class="text-primary-600 font-medium">{{ cards_due }} cards</span> to review today.
+                {% else %}
+                    All caught up! Browse vocabulary to add new cards.
+                {% endif %}
+            </p>
+        </div>
+        {% if profile.current_streak > 0 %}
+        <div class="text-center">
+            <div class="text-3xl">&#x1F525;</div>
+            <div class="text-lg font-bold text-orange-500">{{ profile.current_streak }}</div>
+            <div class="text-xs text-gray-500">day streak</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Review Card -->
+        <a href="{% url 'srs:session' %}"
+           class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 transition-colors group">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold group-hover:text-primary-600 transition-colors">Review Cards</h3>
+            </div>
+            <p class="text-3xl font-bold text-primary-600">{{ cards_due }}</p>
+            <p class="text-sm text-gray-500 mt-1">cards due today</p>
+        </a>
+
+        <!-- Vocabulary Card -->
+        <a href="{% url 'vocabulary:browse' %}"
+           class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors group">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold group-hover:text-blue-600 transition-colors">Vocabulary</h3>
+            </div>
+            <p class="text-3xl font-bold text-blue-600">{{ cards_total }}</p>
+            <p class="text-sm text-gray-500 mt-1">total cards ({{ cards_learned }} learned)</p>
+        </a>
+
+        <!-- Stats Card -->
+        <a href="{% url 'stats:progress' %}"
+           class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-colors group">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold group-hover:text-purple-600 transition-colors">Today's XP</h3>
+            </div>
+            <p class="text-3xl font-bold text-purple-600">{{ today_activity.xp_earned }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ today_activity.cards_reviewed }} cards reviewed</p>
+        </a>
+    </div>
+
+    <!-- Languages -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="font-semibold mb-4">Your Languages</h2>
+        <div class="space-y-3">
+            {% for ul in user_langs %}
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">{% if ul.language.code == 'en' %}&#127468;&#127463;{% elif ul.language.code == 'de' %}&#127465;&#127466;{% endif %}</span>
+                    <div>
+                        <p class="font-medium">{{ ul.language.name }}</p>
+                        <p class="text-sm text-gray-500">Level {{ ul.current_level }} &middot; {{ ul.xp_points }} XP</p>
+                    </div>
+                </div>
+                <a href="{% url 'srs:session' %}?lang={{ ul.language.code }}"
+                   class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors">
+                    Review
+                </a>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">No languages yet. <a href="{% url 'profile' %}" class="text-primary-600">Set up your profile</a>.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    {% if recent_activity %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="font-semibold mb-4">Recent Activity</h2>
+        <div class="grid grid-cols-7 gap-2">
+            {% for day in recent_activity %}
+            <div class="text-center">
+                <div class="w-full aspect-square rounded-lg flex items-center justify-center text-xs font-medium
+                    {% if day.xp_earned >= 50 %}bg-primary-500 text-white
+                    {% elif day.xp_earned >= 20 %}bg-primary-300 dark:bg-primary-700 text-primary-900 dark:text-primary-100
+                    {% elif day.xp_earned > 0 %}bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300
+                    {% else %}bg-gray-100 dark:bg-gray-700 text-gray-400{% endif %}">
+                    {{ day.xp_earned }}
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">{{ day.activity_date|date:"D" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

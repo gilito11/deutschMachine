@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Review - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto" x-data="{ startTime: Date.now() }">
+    <!-- Progress Bar -->
+    <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Review Session</h2>
+        <span class="text-sm text-gray-500">{{ total_cards }} cards to go</span>
+    </div>
+
+    <!-- Card Area -->
+    <div id="review-area" hx-target="this" hx-swap="innerHTML transition:true">
+        {% include 'srs/partials/card_front.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let cardStartTime = Date.now();
+
+    document.body.addEventListener('htmx:afterSwap', function() {
+        cardStartTime = Date.now();
+    });
+
+    function getResponseTime() {
+        return Date.now() - cardStartTime;
+    }
+</script>
+{% endblock %}

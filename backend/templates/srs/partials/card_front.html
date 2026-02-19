@@ -1,0 +1,48 @@
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <!-- Card Header -->
+    <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between">
+        <span class="text-sm text-gray-500">{{ card.vocabulary_item.topic.name }}</span>
+        <span class="text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full">
+            {{ card.vocabulary_item.difficulty_level }}
+        </span>
+    </div>
+
+    <!-- Card Content -->
+    <div class="px-6 py-16 text-center">
+        {% if card.vocabulary_item.gender %}
+        <p class="text-sm text-gray-400 mb-2">{{ card.vocabulary_item.gender }}</p>
+        {% endif %}
+        <p class="text-4xl font-bold mb-4">{{ card.vocabulary_item.word }}</p>
+        {% if card.vocabulary_item.pronunciation_ipa %}
+        <p class="text-gray-400 text-lg">/{{ card.vocabulary_item.pronunciation_ipa }}/</p>
+        {% endif %}
+        <p class="text-sm text-gray-500 mt-2">{{ card.vocabulary_item.get_part_of_speech_display }}</p>
+
+        <!-- TTS Button -->
+        <button onclick="speak('{{ card.vocabulary_item.word }}', '{{ card.vocabulary_item.language.code }}')"
+                class="mt-4 p-3 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Show Answer -->
+    <div class="px-6 pb-6">
+        <button hx-get="{% url 'srs:card_back' card.id %}"
+                hx-target="#review-area"
+                hx-swap="innerHTML transition:true"
+                class="w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors text-lg">
+            Show Answer
+        </button>
+    </div>
+</div>
+
+<script>
+function speak(text, lang) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === 'de' ? 'de-DE' : 'en-GB';
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
+}
+</script>

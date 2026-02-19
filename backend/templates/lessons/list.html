@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Lessons - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto text-center py-16">
+    <div class="text-6xl mb-4">&#128218;</div>
+    <h2 class="text-2xl font-bold mb-2">Lessons Coming Soon</h2>
+    <p class="text-gray-500 dark:text-gray-400 mb-6">
+        Structured lessons with exercises, grammar drills, and scenario-based practice are on the way.
+    </p>
+    <a href="{% url 'vocabulary:browse' %}"
+       class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+        Browse Vocabulary
+    </a>
+</div>
+{% endblock %}

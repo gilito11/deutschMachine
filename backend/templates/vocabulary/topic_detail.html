@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ topic.name }} - deutschMachine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <a href="{% url 'vocabulary:browse' %}?lang={{ topic.language.code }}" class="text-sm text-primary-600 hover:text-primary-500">&larr; Back to topics</a>
+            <h1 class="text-2xl font-bold mt-1">{{ topic.icon }} {{ topic.name }}</h1>
+            <p class="text-gray-500">{{ topic.get_category_display }} &middot; {{ topic.difficulty_level }} &middot; {{ items.count }} words</p>
+        </div>
+        <div id="add-btn">
+            <button hx-post="{% url 'srs:add_topic' topic.slug %}"
+                    hx-target="#add-btn"
+                    hx-swap="innerHTML"
+                    class="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+                Add All to Review
+            </button>
+        </div>
+    </div>
+
+    {% if topic.description %}
+    <p class="text-gray-600 dark:text-gray-400">{{ topic.description }}</p>
+    {% endif %}
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            {% for item in items %}
+            <div class="px-5 py-4 flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3">
+                        <p class="font-medium text-lg">
+                            {% if item.gender %}<span class="text-sm text-gray-400">{{ item.gender }}</span> {% endif %}
+                            {{ item.word }}
+                        </p>
+                        {% if item.pronunciation_ipa %}
+                        <span class="text-sm text-gray-400">/{{ item.pronunciation_ipa }}/</span>
+                        {% endif %}
+                        <button onclick="speak('{{ item.word }}', '{{ item.language.code }}')"
+                                class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-primary-600 dark:text-primary-400 mt-0.5">{{ item.translation_es }}</p>
+                    {% if item.example_sentence %}
+                    <p class="text-sm text-gray-400 mt-1 italic">"{{ item.example_sentence }}"</p>
+                    {% endif %}
+                </div>
+                <div class="flex items-center space-x-2 ml-4">
+                    <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">{{ item.get_part_of_speech_display }}</span>
+                    {% if item.id in user_card_ids %}
+                    <span class="text-xs text-green-500">&#10003; added</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function speak(text, lang) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === 'de' ? 'de-DE' : 'en-GB';
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
+}
+</script>
+{% endblock %}
+{% endblock %}
