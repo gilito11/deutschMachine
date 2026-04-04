@@ -1,20 +1,74 @@
 {% extends 'base.html' %}
 
-{% block title %}AI Chat - deutschMachine{% endblock %}
+{% block title %}AI Conversations - deutschMachine{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto text-center py-16">
-    <div class="text-6xl mb-4">&#129302;</div>
-    <h2 class="text-2xl font-bold mb-2">AI Conversation Practice</h2>
-    <p class="text-gray-500 dark:text-gray-400 mb-4">
-        Practice real conversations with AI. Job interviews, ordering food, meeting people...
-    </p>
-    <p class="text-sm text-gray-400 mb-6">
-        Powered by Claude. Coming in Phase 3.
-    </p>
-    <a href="{% url 'srs:session' %}"
-       class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
-        Review Cards Instead
-    </a>
+<div class="max-w-5xl mx-auto" x-data="{ selectedLang: '{{ user_langs.first.language.id|default:'' }}' }">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-1">AI Conversation Practice</h1>
+        <p class="text-gray-500 dark:text-gray-400">Practice real-life scenarios with an AI tutor</p>
+    </div>
+
+    {% if user_langs %}
+    <!-- Language selector -->
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select language</label>
+        <select x-model="selectedLang"
+                class="w-full sm:w-64 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            {% for ul in user_langs %}
+            <option value="{{ ul.language.id }}">{{ ul.language.name }} ({{ ul.current_level }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Scenario grid -->
+    <h2 class="text-lg font-semibold mb-4">Start a new conversation</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+        {% for s in scenarios %}
+        <form method="post" action="{% url 'conversations:new_session' %}">
+            {% csrf_token %}
+            <input type="hidden" name="scenario" value="{{ s.value }}">
+            <input type="hidden" name="language" x-bind:value="selectedLang">
+            <button type="submit"
+                    class="w-full p-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-400 dark:hover:border-primary-500 hover:shadow-md transition-all text-left group">
+                <div class="text-3xl mb-2">{{ s.emoji }}</div>
+                <div class="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{{ s.label }}</div>
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 mb-10">
+        <p class="text-yellow-800 dark:text-yellow-200">You need to add a language in your profile before starting conversations.</p>
+        <a href="{% url 'profile' %}" class="inline-block mt-3 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">Go to Profile</a>
+    </div>
+    {% endif %}
+
+    <!-- Recent sessions -->
+    {% if sessions %}
+    <h2 class="text-lg font-semibold mb-4">Recent conversations</h2>
+    <div class="space-y-3">
+        {% for s in sessions %}
+        <a href="{% url 'conversations:session' s.id %}"
+           class="block p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-400 dark:hover:border-primary-500 hover:shadow-sm transition-all">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-medium px-2.5 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
+                        {{ s.language.name }}
+                    </span>
+                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ s.title }}</span>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span>{{ s.message_count }} msgs</span>
+                    <span>{{ s.updated_at|timesince }} ago</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,0 +1,29 @@
+{% if error %}
+<!-- Empty response for validation error -->
+{% else %}
+<!-- User message -->
+<div class="flex justify-end">
+    <div class="max-w-[80%] sm:max-w-[70%]">
+        <div class="px-4 py-3 rounded-2xl rounded-br-md bg-primary-600 text-white">
+            <p class="whitespace-pre-wrap">{{ user_msg.content }}</p>
+        </div>
+        <p class="text-xs text-gray-400 dark:text-gray-500 text-right mt-1">{{ user_msg.created_at|time:"H:i" }}</p>
+    </div>
+</div>
+
+<!-- Assistant message -->
+<div class="flex justify-start">
+    <div class="max-w-[80%] sm:max-w-[70%]">
+        <div class="px-4 py-3 rounded-2xl rounded-bl-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            <p class="whitespace-pre-wrap">{{ ai_msg.content }}</p>
+        </div>
+        {% if ai_msg.correction %}
+        <div class="mt-2 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-sm">
+            <p class="font-medium mb-1">Corrections:</p>
+            <p class="whitespace-pre-wrap">{{ ai_msg.correction }}</p>
+        </div>
+        {% endif %}
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ ai_msg.created_at|time:"H:i" }}</p>
+    </div>
+</div>
+{% endif %}

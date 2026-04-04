@@ -1,0 +1,28 @@
+app = 'deutschmachine'
+primary_region = 'mad'
+
+[build]
+
+[env]
+  DJANGO_SETTINGS_MODULE = 'deutschmachine.settings'
+  DEBUG = 'False'
+  ALLOWED_HOSTS = 'deutschmachine.fly.dev,localhost'
+  CSRF_TRUSTED_ORIGINS = 'https://deutschmachine.fly.dev'
+  SECURE_SSL_REDIRECT = 'False'
+  DATABASE_URL = 'sqlite:////data/db.sqlite3'
+
+[http_service]
+  internal_port = 8001
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[mounts]
+  source = 'deutschmachine_data'
+  destination = '/data'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
