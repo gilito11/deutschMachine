@@ -42,6 +42,9 @@ Rules:
 
 
 def _call_claude(session):
+    if not settings.ANTHROPIC_API_KEY:
+        raise ValueError("AI conversations require an API key. Contact the admin.")
+
     client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
     messages_history = []
     for msg in session.messages.all():
@@ -121,8 +124,15 @@ def new_session_view(request):
         content='[Start the conversation. Greet me and set the scene for the scenario.]',
     )
 
-    ai_response = _call_claude(session)
-    content, correction = _parse_corrections(ai_response)
+    try:
+        ai_response = _call_claude(session)
+        content, correction = _parse_corrections(ai_response)
+    except (ValueError, Exception) as e:
+        greeting_msg.delete()
+        session.delete()
+        from django.contrib import messages as django_messages
+        django_messages.error(request, str(e) if isinstance(e, ValueError) else 'AI service temporarily unavailable.')
+        return redirect('conversations:chat')
 
     # Delete the hidden prompt message and save the AI greeting
     greeting_msg.delete()
@@ -177,7 +187,13 @@ def send_message_view(request, session_id):
     )
 
     # Call Claude
-    ai_response = _call_claude(session)
+    try:
+        ai_response = _call_claude(session)
+    except (ValueError, Exception):
+        return render(request, 'conversations/partials/message_pair.html', {
+            'user_msg': user_msg,
+            'ai_msg': type('Msg', (), {'content': 'AI service temporarily unavailable. Try again later.', 'correction': ''})(),
+        })
     content, correction = _parse_corrections(ai_response)
 
     # Save assistant message
