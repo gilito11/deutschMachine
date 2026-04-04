@@ -6,7 +6,7 @@ primary_region = 'fra'
 [env]
   DJANGO_SETTINGS_MODULE = 'deutschmachine.settings'
   DEBUG = 'False'
-  ALLOWED_HOSTS = 'deutschmachine.fly.dev,localhost'
+  ALLOWED_HOSTS = 'deutschmachine.fly.dev,localhost,.internal,.fly.dev'
   CSRF_TRUSTED_ORIGINS = 'https://deutschmachine.fly.dev'
   SECURE_SSL_REDIRECT = 'False'
   DATABASE_URL = 'sqlite:////data/db.sqlite3'
