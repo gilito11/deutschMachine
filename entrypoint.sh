@@ -24,4 +24,4 @@ else:
 python manage.py collectstatic --noinput 2>/dev/null || true
 
 # Start server
-exec waitress-serve --port=8001 --url-scheme=https deutschmachine.wsgi:application
+exec waitress-serve --host=0.0.0.0 --port=8001 --url-scheme=https deutschmachine.wsgi:application
