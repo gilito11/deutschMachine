@@ -10,6 +10,13 @@ from .models import GenderDrillScore, CaseDrillScore
 from .case_data import CASE_EXERCISES, CASE_COLORS
 
 
+def _strip_article(word):
+    for article in ('der ', 'die ', 'das '):
+        if word.lower().startswith(article):
+            return word[len(article):]
+    return word
+
+
 def _get_random_noun(user, exclude_ids=None):
     qs = VocabularyItem.objects.filter(
         language__code='de',
@@ -90,6 +97,7 @@ def gender_drill_view(request):
 
     return render(request, 'trainers/gender_drill.html', {
         'item': item,
+        'noun_word': _strip_article(item.word) if item else '',
         'score': score,
         'today_count': today_count,
     })
@@ -130,6 +138,7 @@ def gender_check_view(request):
 
     return render(request, 'trainers/partials/gender_result.html', {
         'item': item,
+        'noun_word': _strip_article(item.word),
         'is_correct': is_correct,
         'user_answer': user_answer,
         'xp_earned': xp,
@@ -155,6 +164,7 @@ def gender_next_view(request):
 
     return render(request, 'trainers/partials/gender_card.html', {
         'item': item,
+        'noun_word': _strip_article(item.word) if item else '',
         'score': score,
         'today_count': today_count,
     })
