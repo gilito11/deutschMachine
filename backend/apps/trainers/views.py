@@ -17,6 +17,53 @@ def _strip_article(word):
     return word
 
 
+# Common German gender rules by suffix
+_GENDER_RULES = {
+    'der': [
+        ('ling', 'Nouns ending in -ling are masculine'),
+        ('ner', 'Nouns ending in -ner are masculine'),
+        ('ler', 'Nouns ending in -ler are masculine'),
+        ('er', 'Most nouns ending in -er (from verbs/agents) are masculine'),
+        ('ismus', 'Nouns ending in -ismus are masculine'),
+        ('ist', 'Nouns ending in -ist are masculine'),
+        ('or', 'Nouns ending in -or are masculine'),
+        ('ig', 'Nouns ending in -ig are masculine'),
+        ('ich', 'Nouns ending in -ich are masculine'),
+    ],
+    'die': [
+        ('ung', 'Nouns ending in -ung are always feminine'),
+        ('heit', 'Nouns ending in -heit are always feminine'),
+        ('keit', 'Nouns ending in -keit are always feminine'),
+        ('schaft', 'Nouns ending in -schaft are always feminine'),
+        ('taet', 'Nouns ending in -tät are always feminine'),
+        ('tion', 'Nouns ending in -tion are always feminine'),
+        ('ie', 'Nouns ending in -ie are feminine'),
+        ('enz', 'Nouns ending in -enz are feminine'),
+        ('anz', 'Nouns ending in -anz are feminine'),
+        ('ik', 'Nouns ending in -ik are feminine'),
+        ('ur', 'Nouns ending in -ur are feminine'),
+        ('ei', 'Nouns ending in -ei are feminine'),
+    ],
+    'das': [
+        ('chen', 'Nouns ending in -chen (diminutive) are always neuter'),
+        ('lein', 'Nouns ending in -lein (diminutive) are always neuter'),
+        ('ment', 'Nouns ending in -ment are neuter'),
+        ('nis', 'Nouns ending in -nis are usually neuter'),
+        ('tum', 'Nouns ending in -tum are neuter'),
+        ('um', 'Nouns ending in -um are neuter'),
+    ],
+}
+
+
+def _get_gender_hint(word, gender):
+    noun = _strip_article(word).lower()
+    rules = _GENDER_RULES.get(gender, [])
+    for suffix, explanation in rules:
+        if noun.endswith(suffix):
+            return explanation
+    return None
+
+
 def _get_random_noun(user, exclude_ids=None):
     qs = VocabularyItem.objects.filter(
         language__code='de',
@@ -136,6 +183,8 @@ def gender_check_view(request):
     ).first()
     today_count = today_activity.cards_reviewed if today_activity else 0
 
+    gender_hint = _get_gender_hint(item.word, item.gender) if not is_correct else None
+
     return render(request, 'trainers/partials/gender_result.html', {
         'item': item,
         'noun_word': _strip_article(item.word),
@@ -144,6 +193,7 @@ def gender_check_view(request):
         'xp_earned': xp,
         'score': score,
         'today_count': today_count,
+        'gender_hint': gender_hint,
     })
 
 
